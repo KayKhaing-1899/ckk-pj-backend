@@ -480,7 +480,7 @@ app.get('/tvs/:TvId',(req,res)=>{
 })
 
 app.get('/products',(req,res) => {
-    const q = "SELECT * FROM products"
+    const q = "SELECT * FROM products ORDER BY Pid desc"
     db.query(q,(err,data) => {
         if(err) return res.json(err)
         return res.json(data)
@@ -618,7 +618,7 @@ app.delete('/ms/cart/:id',(req,res) => {
     })
 })
 
-app.get('/ms/orderlists',(req,res) => {
+app.get('/orders/orderlists',(req,res) => {
     const q = "SELECT * FROM orders order by id desc"
     db.query(q,(err,data) => {
         if(err) return res.json(err)
@@ -626,26 +626,61 @@ app.get('/ms/orderlists',(req,res) => {
     })
 })
 
-app.get('/ms/orderlists/:date',(req,res) => {
-    const date = req.params.date
-    const q = "SELECT * FROM orders WHERE date = ?"
-    db.query(q,[date],(err,data) => {
+app.delete('/orders/orderlists/:id',(req,res) => {
+    const q = "DELETE FROM orders WHERE id=?"
+    const id = req.params.id
+    db.query(q,[id],(err,data) => {
+        if(err) return res.json(err)
+        return res.json("Successfully deleted!")
+    })
+})
+
+app.get('/orders/orderlists/:cusname',(req,res) => {
+    const name = req.params.cusname
+    const q = "SELECT * FROM orders WHERE cusname = ?"
+    db.query(q,[name],(err,data) => {
         if(err) return res.json(err)
         return res.json(data)
     })
 })
 
-app.delete('/ms/orderlists/:date',(req,res) => {
-    const date = req.params.date
-    const q = "DELETE FROM orders WHERE date = ? "
-    db.query(q,[date],(err,data) => {
+// app.delete('/ms/orderlists/:cusname',(req,res) => {
+//     const name = req.params.cusname
+//     const q = "DELETE FROM orders WHERE cusname = ? "
+//     db.query(q,[name],(err,data) => {
+//         if(err) return res.json(err)
+//         return res.json("Successfully deleted!")
+//     })
+// })
+
+app.post('/orders/orderlists',(req,res) => {
+    const q = "INSERT INTO orders (`date`,`cusname`,`email`,`phone`,`address`,`item`,`quantity`,`price`,`total`) VALUES (?)"
+    const values = [
+        req.body.date,
+        req.body.cusname,
+        req.body.email,
+        req.body.phone,
+        req.body.address,
+        req.body.item,
+        req.body.quantity,
+        req.body.price,
+        req.body.total
+    ]
+    db.query(q,[values],(err,data) => {
         if(err) return res.json(err)
-        return res.json("Successfully deleted from cart!")
+        return res.json("Successfully added!")
     })
 })
 
-app.post('/ms/orderlists',(req,res) => {
-    const q = "INSERT INTO orders (`date`,`cusname`,`email`,`phone`,`address`,`item`,`quantity`,`price`,`total`) VALUES (?)"
+app.get("/ms/delivered",(req,res)=>{
+    db.query("SELECT * FROM deliver",(err,data) => {
+        if(err) return res.json(err)
+        return res.json(data)
+    })
+})
+
+app.post('/ms/delivered',(req,res) => {
+    const q = "INSERT INTO deliver (`date`,`cusname`,`email`,`phone`,`address`,`item`,`quantity`,`price`,`total`) VALUES (?)"
     const values = [
         req.body.date,
         req.body.cusname,
