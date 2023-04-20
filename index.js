@@ -644,15 +644,6 @@ app.get('/orders/orderlists/:cusname',(req,res) => {
     })
 })
 
-// app.delete('/ms/orderlists/:cusname',(req,res) => {
-//     const name = req.params.cusname
-//     const q = "DELETE FROM orders WHERE cusname = ? "
-//     db.query(q,[name],(err,data) => {
-//         if(err) return res.json(err)
-//         return res.json("Successfully deleted!")
-//     })
-// })
-
 app.post('/orders/orderlists',(req,res) => {
     const q = "INSERT INTO orders (`date`,`cusname`,`email`,`phone`,`address`,`item`,`quantity`,`price`,`total`) VALUES (?)"
     const values = [
@@ -673,7 +664,7 @@ app.post('/orders/orderlists',(req,res) => {
 })
 
 app.get("/ms/delivered",(req,res)=>{
-    db.query("SELECT * FROM deliver",(err,data) => {
+    db.query("SELECT * FROM deliver order by Did desc",(err,data) => {
         if(err) return res.json(err)
         return res.json(data)
     })
@@ -698,22 +689,19 @@ app.post('/ms/delivered',(req,res) => {
     })
 })
 
-app.get('/ms/admin',(req,res) => {
-    db.query("SELECT * FROM admin",(err,data) => {
+app.get("/ms/delivered/:cusname",(req,res)=>{
+    const q = "SELECT * FROM deliver WHERE cusname = ?"
+    const name = req.params.cusname
+    db.query(q,[name],(err,data) => {
         if(err) return res.json(err)
         return res.json(data)
     })
 })
 
-app.post('/ms/admin',(req,res) => {
-    const q = "INSERT INTO admin (`name`,`pwd`) VALUES (?)"
-    const values = [
-        req.body.name,
-        req.body.pwd
-    ]
-    db.query(q,[values],(err,data) => {
+app.get('/ms/admin',(req,res) => {
+    db.query("SELECT * FROM admin",(err,data) => {
         if(err) return res.json(err)
-        return res.json("Successfully added!")
+        return res.json(data)
     })
 })
 
@@ -736,6 +724,18 @@ app.post('/ms/users',(req,res) => {
     db.query(q,[values],(err,data) => {
         if(err) return res.json(err)
         return res.json("Sign up successful!")
+    })
+})
+
+app.put('/ms/users/:Email',(req,res) => {
+    const q = "UPDATE user SET `Password`=? WHERE Email = ?"
+    const email = req.params.Email
+    const values = [
+        req.body.Password
+    ]
+    db.query(q,[...values,email],(err,data) => {
+        if(err) return res.json(err)
+        return res.json("Successfully updated")
     })
 })
 
